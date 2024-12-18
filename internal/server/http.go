@@ -20,7 +20,7 @@ func (s *httpServer) handleProduce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	off,err := s.Log.Appen(req.Log)
+	off,err := s.Log.Append(req.Record)
 	if err != nil {
 		http.Error(w,err.Error(),http.StatusInternalServerError)
 		return
@@ -70,7 +70,12 @@ func newHTTPServer() *httpServer {
 
 func NewHTTPServer(addr string) *http.Server {
 
+	httpsrv := newHTTPServer()
+
 	r := mux.NewRouter()
+
+	r.HandleFunc("/",httpsrv.handleProduce).Methods("POST")
+	r.HandleFunc("/",httpsrv.handleConsume).Methods("GET")
 
 	return &http.Server{
 		Addr: addr,
